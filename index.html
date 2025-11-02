@@ -46,7 +46,7 @@
       }
     }
     .animate-fade-in-up {
-      animation: fade-in-up 0.3s ease-out forwards;
+      animation: fade-in-up 0.5s ease-out forwards;
     }
   </style>
 <script type="importmap">
@@ -90,7 +90,11 @@
           { name: 'استعراض السجل التدريبي', description: 'عرض السجل الأكاديمي والتدريبي الشامل للمتدرب.' },
           { name: 'خدمات أمازون التعليمية AWS', description: 'الوصول إلى الخدمات والموارد التعليمية المقدمة من AWS.' },
           { name: 'تحديث كلمة المرور للمتدربين', description: 'تغيير كلمة المرور الحالية للحساب.' },
-          { name: 'البطاقة الرقمية', description: 'استعراض نسخة رقمية من بطاقة المتدرب.' }
+          { name: 'البطاقة الرقمية', description: 'استعراض نسخة رقمية من بطاقة المتدرب.' },
+          { name: 'خدمة تعديل رقم الجوال', description: 'تحديث أو تغيير رقم الجوال المسجل في النظام.' },
+          { name: 'خدمة حجز موعد مع المرشد', description: 'حجز موعد إلكتروني للتواصل مع المرشد الأكاديمي.' },
+          { name: 'طلب زيارة لمسار تدريبي جديد', description: 'تقديم طلب لزيارة والتعرف على مسار تدريبي آخر.' },
+          { name: 'طلب تغيير تخصص', description: 'تقديم طلب لتغيير التخصص الحالي إلى تخصص آخر متاح.' }
         ]
       },
       trainers: {
@@ -140,10 +144,36 @@
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
       </svg>
     );
+    
+    const InfoIcon = () => (
+       <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mb-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    );
+
+    const UniformIcon = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mb-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l7.5-7.5 7.5 7.5m-15 6l7.5-7.5 7.5 7.5" transform="translate(0, -4)" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M18 21H6a2 2 0 01-2-2V9a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2z" transform="translate(0, -4)" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.5 7.5c0-2.21 1.79-4 4-4s4 1.79 4 4" transform="translate(-3.7, 0)" />
+      </svg>
+    );
 
     const ArrowLeftIcon = () => (
       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+      </svg>
+    );
+
+    const FlagIcon = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mb-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v18h18M5 5.5c1.333-1.333 4-1.333 5.333 0S14.667 7.5 16 5.5s3 2 3 2v7c0 0-1.667-2-3-2s-4 2-5.333 0S5 10.5 5 10.5v-5z" />
+      </svg>
+    );
+
+    const BuildingMapIcon = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mb-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13v-6m0 6l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 16.382V5.618a1 1 0 00-1.447-.894L15 7m0 10v-4m0 4l-6-3m6 3V7" />
       </svg>
     );
     
@@ -172,17 +202,78 @@
       );
     };
 
+    const MapModal = ({ isOpen, onClose }) => {
+      if (!isOpen) return null;
+      return (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4 transition-opacity duration-300 animate-fade-in-up"
+          onClick={onClose}
+        >
+          <div
+            className="relative bg-white rounded-lg shadow-xl w-full max-w-4xl transform transition-transform duration-300 scale-95"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={onClose}
+              className="absolute -top-4 -right-4 bg-white text-gray-700 hover:text-black rounded-full h-10 w-10 flex items-center justify-center text-2xl font-bold z-10 shadow-lg"
+              aria-label="Close map"
+            >
+              &times;
+            </button>
+            <img
+              src="https://github.com/sunosama-afk/EdaView/blob/main/%D8%AA%D8%B5%D9%85%D9%8A%D9%85%20%D8%A8%D8%AF%D9%88%D9%86%20%D8%B9%D9%86%D9%88%D8%A7%D9%86%20(4).png?raw=true"
+              alt="خريطة مبنى الكلية"
+              className="w-full h-auto object-contain rounded-lg"
+            />
+          </div>
+        </div>
+      );
+    };
+
+    // --- FROM components/LaunchScreen.tsx ---
+    const LaunchScreen = ({ onNavigateToLogin, onOpenMap }) => {
+      return (
+        <main className="flex-grow flex flex-col items-center justify-center w-full animate-fade-in-up">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-4xl">
+            {/* Card 1: Rayat (Active) */}
+            <div 
+              onClick={onNavigateToLogin} 
+              className="flex flex-col items-center justify-center p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer group"
+            >
+              <FlagIcon />
+              <h2 className="text-2xl font-bold text-gray-800 group-hover:text-green-600 transition-colors">رايات</h2>
+            </div>
+            
+            {/* Card 2: Trainee Services (Disabled) */}
+            <div className="flex flex-col items-center justify-center p-8 bg-gray-100 border border-gray-200 rounded-2xl shadow-md transition-all duration-300 cursor-not-allowed opacity-60 grayscale">
+              <TraineesIcon />
+              <h2 className="text-2xl font-bold text-gray-500">خدمات المتدربين</h2>
+            </div>
+            
+            {/* Card 3: Building Map (Active) */}
+            <div 
+              onClick={onOpenMap}
+              className="flex flex-col items-center justify-center p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer group"
+            >
+              <BuildingMapIcon />
+              <h2 className="text-2xl font-bold text-gray-800 group-hover:text-green-600 transition-colors">خريطة المبنى</h2>
+            </div>
+          </div>
+        </main>
+      );
+    };
+
     // --- FROM components/LoginScreen.tsx ---
     const LoginScreen = ({ academicId, onIdChange, onSubmit, error, isSuccess }) => {
       return (
-        <main className="w-full max-w-md z-10 flex-grow flex items-center justify-center">
+        <main className="w-full max-w-md z-10 flex-grow flex items-center justify-center animate-fade-in-up">
           <div className="w-full bg-white border border-gray-200 rounded-2xl p-8 shadow-xl shadow-gray-200/50 transition-all duration-500">
             <div className="text-center mb-8">
-              <h1 className="text-3xl md:text-4xl font-bold text-green-600">الكلية التقنية بالمدينة المنورة</h1>
+              <h1 className="text-3xl md:text-4xl font-bold text-green-600">تسجيل الدخول - رايات</h1>
             </div>
             <form onSubmit={onSubmit} noValidate>
               <div className="mb-6">
-                <label htmlFor="academicId" className="block text-right mb-2 text-sm font-medium text-gray-600">فضلاً أدخل الرقم الأكاديمي</label>
+                <label htmlFor="academicId" className="block text-right mb-2 text-sm font-medium text-gray-600">فضلاً أدخل الرقم التدريبي</label>
                 <input 
                   id="academicId" 
                   type="text" 
@@ -214,7 +305,7 @@
       const { title, items } = MENU_ITEMS[menuKey];
 
       return (
-        <main className="flex-grow w-full flex flex-col items-center">
+        <main className="flex-grow w-full flex flex-col items-center animate-fade-in-up">
           <div className="w-full flex justify-center items-center mb-8">
             <h1 className="text-2xl md:text-3xl font-bold text-green-600">{title}</h1>
           </div>
@@ -237,10 +328,10 @@
     };
 
     // --- FROM components/Dashboard.tsx ---
-    const Dashboard = ({ onSelectView }) => {
+    const Dashboard = ({ onSelectView, onItemClick }) => {
       return (
-        <main className="flex-grow flex flex-col items-center justify-center w-full">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
+        <main className="flex-grow flex flex-col items-center justify-center w-full animate-fade-in-up">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
             <div onClick={() => onSelectView('trainees')} className="flex flex-col items-center justify-center p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer">
               <TraineesIcon />
               <h2 className="text-2xl font-bold text-gray-800">المتدربون</h2>
@@ -252,6 +343,14 @@
             <div onClick={() => onSelectView('supervisors')} className="flex flex-col items-center justify-center p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer">
               <SupervisorsIcon />
               <h2 className="text-2xl font-bold text-gray-800">مشرفو الوحدات</h2>
+            </div>
+            <div onClick={() => onItemClick('الاطلاع على الإعلانات الهامة واللوائح الإرشادية والتقويم التدريبي.')} className="flex flex-col items-center justify-center p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer">
+              <InfoIcon />
+              <h2 className="text-2xl font-bold text-gray-800">معلومات هامة للمتدرب</h2>
+            </div>
+            <div onClick={() => onItemClick('استعراض إرشادات ومتطلبات الزي الرسمي للمتدربين.')} className="flex flex-col items-center justify-center p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer">
+              <UniformIcon />
+              <h2 className="text-2xl font-bold text-gray-800">الزي الرسمي</h2>
             </div>
           </div>
         </main>
@@ -268,6 +367,8 @@
       const [currentView, setCurrentView] = useState('dashboard');
       const [isModalOpen, setIsModalOpen] = useState(false);
       const [modalContent, setModalContent] = useState('');
+      const [currentScreen, setCurrentScreen] = useState('launch'); // 'launch', 'login'
+      const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
       useEffect(() => {
         if (isLoggedIn) {
@@ -288,13 +389,14 @@
       const handleSubmit = (e) => {
         e.preventDefault();
         if (academicId.length !== 9) {
-          setError('الرقم الأكاديمي يجب أن يتكون من 9 أرقام بالضبط.');
+          setError('الرقم التدريبي يجب أن يتكون من 9 أرقام بالضبط.');
           setIsSuccess(false);
         } else {
           setError(null);
           setIsSuccess(true);
           setTimeout(() => {
             setIsLoggedIn(true);
+            setCurrentView('dashboard');
           }, 1500);
         }
       };
@@ -302,6 +404,7 @@
       const handleLogout = () => {
         setIsLoggedIn(false);
         setCurrentView('dashboard');
+        setCurrentScreen('launch');
         setAcademicId('');
         setError(null);
         setIsSuccess(false);
@@ -316,6 +419,10 @@
         setIsModalOpen(false);
         setModalContent('');
       };
+      
+      const handleOpenMapModal = () => setIsMapModalOpen(true);
+      const handleCloseMapModal = () => setIsMapModalOpen(false);
+
 
       const renderLoggedInView = () => {
         switch (currentView) {
@@ -325,23 +432,47 @@
             return <MenuScreen menuKey={currentView} onItemClick={handleMenuItemClick} />;
           case 'dashboard':
           default:
-            return <Dashboard onSelectView={(view) => setCurrentView(view)} />;
+            return <Dashboard onSelectView={(view) => setCurrentView(view)} onItemClick={handleMenuItemClick} />;
+        }
+      };
+      
+      const renderContent = () => {
+        if (isLoggedIn) {
+          return renderLoggedInView();
+        }
+        switch (currentScreen) {
+          case 'login':
+            return (
+              <LoginScreen
+                academicId={academicId}
+                onIdChange={handleInputChange}
+                onSubmit={handleSubmit}
+                error={error}
+                isSuccess={isSuccess}
+              />
+            );
+          case 'launch':
+          default:
+            return <LaunchScreen onNavigateToLogin={() => setCurrentScreen('login')} onOpenMap={handleOpenMapModal} />;
         }
       };
 
       return (
         <div className="relative min-h-screen bg-gray-50 text-gray-800 flex flex-col items-center justify-between selection:bg-green-500 selection:text-white p-4 md:p-8">
           
-          <img 
-            src="https://github.com/sunosama-afk/EdaView/blob/main/%D8%A7%D9%84%D8%B4%D8%B9%D8%A7%D8%B1.png?raw=true" 
-            alt="شعار EdaView" 
-            className="h-20 md:h-24 mb-8"
-          />
+          <div className="absolute top-8 left-8 right-8 flex justify-center">
+            <img 
+              src="https://github.com/sunosama-afk/EdaView/blob/main/%D8%A7%D9%84%D8%B4%D8%B9%D8%A7%D8%B1-removebg-preview%20(1).png?raw=true" 
+              alt="شعار EDA VIEW" 
+              className="h-24 md:h-32"
+            />
+          </div>
 
           <Modal isOpen={isModalOpen} onClose={handleCloseModal} content={modalContent} />
-          
+          <MapModal isOpen={isMapModalOpen} onClose={handleCloseMapModal} />
+
           {isLoggedIn && (
-            <header className="w-full flex justify-between items-center mb-8 max-w-6xl">
+            <header className="w-full flex justify-between items-center mb-8 max-w-6xl z-10">
               <div className="flex items-center gap-2">
                 <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 text-sm">
                   تسجيل الخروج
@@ -359,26 +490,11 @@
           )}
 
           <div className="w-full max-w-6xl flex-grow flex flex-col items-center justify-center">
-            {isLoggedIn ? renderLoggedInView() : (
-              <LoginScreen
-                academicId={academicId}
-                onIdChange={handleInputChange}
-                onSubmit={handleSubmit}
-                error={error}
-                isSuccess={isSuccess}
-              />
-            )}
+            {renderContent()}
           </div>
           
-          <footer className="w-full max-w-6xl flex justify-between items-center p-4 text-gray-500 text-sm mt-8">
-            <a href="https://tvtc.gov.sa" target="_blank" rel="noopener noreferrer" title="المؤسسة العامة للتدريب التقني والمهني">
-              <img 
-                src="https://tvtc.gov.sa/Style%20Library/tvtc/images/logo.svg" 
-                alt="شعار المؤسسة العامة للتدريب التقني والمهني"
-                className="h-16"
-              />
-            </a>
-            <span>جميع الحقوق محفوظة EdaView 2025</span>
+          <footer className="w-full max-w-6xl flex justify-center items-center p-4 text-gray-500 text-sm mt-8 z-10">
+            <span>جميع الحقوق محفوظة EDA VIEW 2025 ©</span>
           </footer>
         </div>
       );
