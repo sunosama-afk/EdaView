@@ -128,7 +128,7 @@
     );
     const UniformIcon = () => (
       React.createElement('svg', { xmlns: "http://www.w3.org/2000/svg", className: "h-16 w-16 mb-4 text-green-600", fill: "none", viewBox: "0 0 24 24", stroke: "currentColor", strokeWidth: 1.5 },
-        React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", d: "M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H12m4.5 0H12m0 0H7.5m4.5 0v12.75" })
+        React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", d: "M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.658-.463 1.243-1.117 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.117 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" })
       )
     );
     const ArrowLeftIcon = () => (
@@ -143,7 +143,7 @@
     );
     const BuildingMapIcon = () => (
       React.createElement('svg', { xmlns: "http://www.w3.org/2000/svg", className: "h-16 w-16 mb-4 text-green-600", fill: "none", viewBox: "0 0 24 24", stroke: "currentColor", strokeWidth: 1.5 },
-         React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", d: "M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6h1.5m-1.5 3h1.5m-1.5 3h1.5M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M11.25 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21" })
+         React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", d: "M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" })
       )
     );
 
@@ -328,7 +328,7 @@
 
       const handleInputChange = (e) => {
         const value = e.target.value;
-        if (/^\\d*$/.test(value) && value.length <= 9) {
+        if (/^\d*$/.test(value) && value.length <= 9) {
           setAcademicId(value);
           if (error) setError(null);
           if (isSuccess) setIsSuccess(false);
