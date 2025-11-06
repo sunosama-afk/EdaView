@@ -32,19 +32,416 @@
       animation: fade-in-up 0.5s ease-out forwards;
     }
   </style>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script type="importmap">
 {
   "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/client": "https://aistudiocdn.com/react-dom@^19.2.0/client",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0"
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
   }
 }
 </script>
 </head>
 <body>
   <div id="root"></div>
-  <script type="text/babel" data-presets="react" src="./index.tsx"></script>
+  <script type="module">
+    import React, { useState, useEffect } from 'react';
+    import ReactDOM from 'react-dom/client';
+
+    // --- From constants.ts ---
+    const ARABIC_MALE_NAMES = ['محمد', 'أحمد', 'علي', 'خالد', 'سلطان', 'عبدالله', 'فهد'];
+    const MENU_ITEMS = {
+      trainees: {
+        title: 'خدمات المتدربين',
+        items: [
+          { name: 'التسجيل الذاتي للمتدربين', description: 'تسجيل واختيار المقررات التدريبية للفصل.' },
+          { name: 'الخدمات الذاتية للمتدربين', description: 'مجموعة من الخدمات المتنوعة (مثل طلبات الإضافة، الحذف، التأجيل، الانسحاب، طي القيد، إلخ).' },
+          { name: 'عرض جدول المتدرب', description: 'استعراض الجدول التدريبي النهائي للمتدرب.' },
+          { name: 'هل نسيت كلمة المرور؟', description: 'خدمة استرجاع أو إعادة تعيين كلمة المرور.' },
+          { name: 'أمن حسابك', description: 'قد تشمل إعداد المصادقة الثنائية أو تحديث بيانات الأمان.' },
+          { name: 'البريد الإلكتروني', description: 'الوصول إلى البريد الإلكتروني الخاص بالمتدرب.' },
+          { name: 'الإستعلام عن اسم المستخدم للمتدربين', description: 'استرجاع اسم المستخدم الخاص بحساب المتدرب.' },
+          { name: 'بوابة البلاك بورد (Blackboard portal)', description: 'الدخول إلى نظام إدارة التعلم الإلكتروني.' },
+          { name: 'معادلة المقررات', description: 'تقديم طلب لمعادلة المقررات التي تم دراستها سابقاً.' },
+          { name: 'استعراض سجل الدرجات الحالي', description: 'الاطلاع على درجات المتدرب في المقررات الحالية والسابقة.' },
+          { name: 'الاستعلام عن الحضور والغياب', description: 'متابعة سجل الحضور والغياب للمتدرب في المقررات.' },
+          { name: 'استعراض السجل التدريبي', description: 'عرض السجل الأكاديمي والتدريبي الشامل للمتدرب.' },
+          { name: 'خدمات أمازون التعليمية AWS', description: 'الوصول إلى الخدمات والموارد التعليمية المقدمة من AWS.' },
+          { name: 'تحديث كلمة المرور للمتدربين', description: 'تغيير كلمة المرور الحالية للحساب.' },
+          { name: 'البطاقة الرقمية', description: 'استعراض نسخة رقمية من بطاقة المتدرب.' },
+          { name: 'خدمة تعديل رقم الجوال', description: 'تحديث أو تغيير رقم الجوال المسجل في النظام.' },
+          { name: 'خدمة حجز موعد مع المرشد', description: 'حجز موعد إلكتروني للتواصل مع المرشد الأكاديمي.' },
+          { name: 'طلب زيارة لمسار تدريبي جديد', description: 'تقديم طلب لزيارة والتعرف على مسار تدريبي آخر.' },
+          { name: 'طلب تغيير تخصص', description: 'تقديم طلب لتغيير التخصص الحالي إلى تخصص آخر متاح.' }
+        ]
+      },
+      trainers: {
+        title: 'خدمات المدربين',
+        items: [
+          { name: 'الخدمات الذاتية للمدربين', description: 'خدمات إدارية ومالية وشخصية للمدرب (قد تشمل طلبات الإجازات، استعراض بيانات الراتب، إخلاء الطرف، إلخ).' },
+          { name: 'رصد الدرجات', description: 'إدخال وتحديث درجات المتدربين في المقررات والشعب المسندة للمدرب.' },
+          { name: 'رصد الحضور والغياب', description: 'تسجيل ومتابعة حضور وغياب المتدربين في الشعب التدريبية.' },
+          { name: 'عرض الجدول التدريبي', description: 'استعراض جدول المقررات والشعب المسندة للمدرب.' },
+          { name: 'البلاك بورد / التدرب الإلكتروني', description: 'الوصول لإدارة المقررات على نظام البلاك بورد.' },
+          { name: 'البريد الإلكتروني', description: 'الوصول إلى البريد الإلكتروني الرسمي.' },
+          { name: 'أمن الحساب وتغيير كلمة المرور', description: 'خدمات أمن الحساب وإعادة تعيين كلمة المرور.' },
+          { name: 'إصدار بطاقة مدرب معتمد', description: 'خدمة قد تكون متاحة عبر بوابة التدريب.' },
+          { name: 'استعراض الشعب التدريبية', description: 'عرض تفاصيل الشعب والمقررات المسندة للمدرب.' }
+        ]
+      },
+      supervisors: {
+        title: 'خدمات مشرفي الوحدات',
+        items: [
+          { name: 'خدمات مشرفو الوحدات', description: 'مجموعة من الأدوات الإدارية والإشرافية المتاحة لهم في النظام.' },
+          { name: 'اعتماد رصد الدرجات', description: 'مراجعة واعتماد الدرجات التي تم رصدها من قبل المدربين.' },
+          { name: 'متابعة الحضور والغياب', description: 'الإشراف ومراجعة تقارير الحضور والغياب للوحدة التدريبية.' },
+          { name: 'تقارير الوحدة التدريبية', description: 'استخراج تقارير إحصائية وأكاديمية عن سير العملية التدريبية.' },
+          { name: 'إدارة الجداول التدريبية', description: 'الإشراف على إعداد وجدولة المقررات والشعب.' },
+          { name: 'الخدمات الإدارية', description: 'خدمات إدارية داخلية خاصة بالوحدة (قد تشمل الإشراف على الإجازات، المهام، إلخ).' },
+          { name: 'البريد الإلكتروني', description: 'الوصول إلى البريد الإلكتروني الرسمي.' },
+          { name: 'أمن الحساب وتغيير كلمة المرور', description: 'خدمات أمن الحساب وإعادة تعيين كلمة المرور.' }
+        ]
+      }
+    };
+
+    // --- From components/Icons.tsx ---
+    const TraineesIcon = () => (
+      React.createElement('svg', { xmlns: 'http://www.w3.org/2000/svg', className: 'h-16 w-16 mb-4 text-green-600', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor', strokeWidth: 1 },
+        React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', d: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' })
+      )
+    );
+    const TrainersIcon = () => (
+      React.createElement('svg', { xmlns: 'http://www.w3.org/2000/svg', className: 'h-16 w-16 mb-4 text-green-600', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor', strokeWidth: 1 },
+        React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', d: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' })
+      )
+    );
+    const SupervisorsIcon = () => (
+      React.createElement('svg', { xmlns: 'http://www.w3.org/2000/svg', className: 'h-16 w-16 mb-4 text-green-600', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor', strokeWidth: 1 },
+        React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', d: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' })
+      )
+    );
+    const InfoIcon = () => (
+       React.createElement('svg', { xmlns: 'http://www.w3.org/2000/svg', className: 'h-16 w-16 mb-4 text-green-600', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor', strokeWidth: 1 },
+        React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', d: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' })
+      )
+    );
+    const UniformIcon = () => (
+      React.createElement('svg', { xmlns: "http://www.w3.org/2000/svg", className: "h-16 w-16 mb-4 text-green-600", fill: "none", viewBox: "0 0 24 24", stroke: "currentColor", strokeWidth: 1.5 },
+        React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", d: "M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H12m4.5 0H12m0 0H7.5m4.5 0v12.75" })
+      )
+    );
+    const ArrowLeftIcon = () => (
+      React.createElement('svg', { xmlns: 'http://www.w3.org/2000/svg', className: 'h-5 w-5 ml-2', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor' },
+        React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', strokeWidth: 2, d: 'M15 19l-7-7 7-7' })
+      )
+    );
+    const FlagIcon = () => (
+      React.createElement('svg', { xmlns: 'http://www.w3.org/2000/svg', className: 'h-16 w-16 mb-4 text-green-600', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor', strokeWidth: 1.5 },
+        React.createElement('path', { strokeLinecap: 'round', strokeLinejoin: 'round', d: 'M3 3v18h18M5 5.5c1.333-1.333 4-1.333 5.333 0S14.667 7.5 16 5.5s3 2 3 2v7c0 0-1.667-2-3-2s-4 2-5.333 0S5 10.5 5 10.5v-5z' })
+      )
+    );
+    const BuildingMapIcon = () => (
+      React.createElement('svg', { xmlns: "http://www.w3.org/2000/svg", className: "h-16 w-16 mb-4 text-green-600", fill: "none", viewBox: "0 0 24 24", stroke: "currentColor", strokeWidth: 1.5 },
+         React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", d: "M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6h1.5m-1.5 3h1.5m-1.5 3h1.5M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M11.25 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21" })
+      )
+    );
+
+    // --- From components/Modal.tsx ---
+    const Modal = ({ isOpen, onClose, content }) => {
+      if (!isOpen) return null;
+      return (
+        React.createElement('div', { 
+          className: "fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 transition-opacity duration-300", 
+          onClick: onClose 
+        },
+          React.createElement('div', { 
+            className: "bg-white rounded-2xl shadow-xl p-8 max-w-lg w-full text-center transform transition-transform duration-300 scale-95 animate-fade-in-up", 
+            onClick: (e) => e.stopPropagation() 
+          },
+            React.createElement('h3', { className: "text-xl font-bold text-green-600 mb-4" }, 'تفاصيل الخدمة'),
+            React.createElement('p', { className: "text-gray-700 mb-6" }, content),
+            React.createElement('button', { 
+              onClick: onClose, 
+              className: "bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-offset-white focus:ring-green-500" 
+            }, 'إغلاق')
+          )
+        )
+      );
+    };
+
+    // --- From components/MapModal.tsx ---
+    const MapModal = ({ isOpen, onClose }) => {
+      if (!isOpen) return null;
+      return (
+        React.createElement('div', {
+          className: "fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4 transition-opacity duration-300 animate-fade-in-up",
+          onClick: onClose
+        },
+          React.createElement('div', {
+            className: "relative bg-white rounded-lg shadow-xl w-full max-w-4xl transform transition-transform duration-300 scale-95",
+            onClick: (e) => e.stopPropagation()
+          },
+            React.createElement('button', {
+              onClick: onClose,
+              className: "absolute -top-4 -right-4 bg-white text-gray-700 hover:text-black rounded-full h-10 w-10 flex items-center justify-center text-2xl font-bold z-10 shadow-lg",
+              'aria-label': "Close map"
+            }, '×'),
+            React.createElement('img', {
+              src: "https://github.com/sunosama-afk/EdaView/blob/main/%D8%AA%D8%B5%D9%85%D9%8A%D9%85%20%D8%A8%D8%AF%D9%88%D9%86%20%D8%B9%D9%86%D9%88%D8%A7%D9%86%20(4).png?raw=true",
+              alt: "خريطة مبنى الكلية",
+              className: "w-full h-auto object-contain rounded-lg"
+            })
+          )
+        )
+      );
+    };
+
+    // --- From components/LaunchScreen.tsx ---
+    const LaunchScreen = ({ onNavigateToLogin, onOpenMap, onItemClick }) => {
+      return (
+        React.createElement('main', { className: "flex-grow flex flex-col items-center justify-center w-full animate-fade-in-up" },
+          React.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-2 gap-8 w-full max-w-4xl" },
+            React.createElement('div', { onClick: onNavigateToLogin, className: "flex flex-col items-center justify-center p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer group" },
+              React.createElement(FlagIcon),
+              React.createElement('h2', { className: "text-2xl font-bold text-gray-800 group-hover:text-green-600 transition-colors" }, 'رايات')
+            ),
+            React.createElement('div', { onClick: onOpenMap, className: "flex flex-col items-center justify-center p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer group" },
+              React.createElement(BuildingMapIcon),
+              React.createElement('h2', { className: "text-2xl font-bold text-gray-800 group-hover:text-green-600 transition-colors" }, 'خريطة المبنى')
+            ),
+            React.createElement('div', { onClick: () => onItemClick('الاطلاع على الإعلانات الهامة واللوائح الإرشادية والتقويم التدريبي.'), className: "flex flex-col items-center justify-center p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer group" },
+              React.createElement(InfoIcon),
+              React.createElement('h2', { className: "text-2xl font-bold text-gray-800 group-hover:text-green-600 transition-colors" }, 'معلومات هامة')
+            ),
+            React.createElement('div', { onClick: () => onItemClick('استعراض إرشادات ومتطلبات الزي الرسمي للمتدربين.'), className: "flex flex-col items-center justify-center p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer group" },
+              React.createElement(UniformIcon),
+              React.createElement('h2', { className: "text-2xl font-bold text-gray-800 group-hover:text-green-600 transition-colors" }, 'الزي الرسمي')
+            )
+          )
+        )
+      );
+    };
+
+    // --- From components/LoginScreen.tsx ---
+    const LoginScreen = ({ academicId, onIdChange, onSubmit, error, isSuccess }) => {
+      return (
+        React.createElement('main', { className: "w-full max-w-md z-10 flex-grow flex items-center justify-center animate-fade-in-up" },
+          React.createElement('div', { className: "w-full bg-white border border-gray-200 rounded-2xl p-8 shadow-xl shadow-gray-200/50 transition-all duration-500" },
+            React.createElement('div', { className: "text-center mb-8" },
+              React.createElement('h1', { className: "text-3xl md:text-4xl font-bold text-green-600" }, 'تسجيل الدخول - رايات')
+            ),
+            React.createElement('form', { onSubmit: onSubmit, noValidate: true },
+              React.createElement('div', { className: "mb-6" },
+                React.createElement('label', { htmlFor: "academicId", className: "block text-right mb-2 text-sm font-medium text-gray-600" }, 'فضلاً أدخل الرقم التدريبي'),
+                React.createElement('input', { 
+                  id: "academicId", 
+                  type: "text", 
+                  value: academicId, 
+                  onChange: onIdChange, 
+                  placeholder: "*********",
+                  className: `w-full bg-gray-50 border-2 rounded-md py-3 px-4 text-gray-900 placeholder-gray-400 transition-all duration-300 outline-none text-center text-2xl tracking-[0.3em] font-mono ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/50' : ''} ${isSuccess ? 'border-green-500 focus:border-green-500 focus:ring-green-500/50' : ''} ${!error && !isSuccess ? 'border-gray-200 focus:border-green-500 focus:ring-green-500/50' : ''}`,
+                  autoComplete: "off", 
+                  maxLength: 9 
+                }),
+                error && React.createElement('p', { className: "text-red-500 mt-2 text-sm text-center" }, error),
+                isSuccess && React.createElement('p', { className: "text-green-500 mt-2 text-sm text-center" }, 'تم التحقق بنجاح! جاري الدخول...')
+              ),
+              React.createElement('button', { 
+                type: "submit", 
+                className: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-md transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-offset-white focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed", 
+                disabled: academicId.length !== 9 || isSuccess
+              }, 'دخول')
+            )
+          )
+        )
+      );
+    };
+    
+    // --- From components/MenuScreen.tsx ---
+    const MenuScreen = ({ menuKey, onItemClick }) => {
+      const { title, items } = MENU_ITEMS[menuKey];
+      return (
+        React.createElement('main', { className: "flex-grow w-full flex flex-col items-center animate-fade-in-up" },
+          React.createElement('div', { className: "w-full flex justify-center items-center mb-8" },
+            React.createElement('h1', { className: "text-2xl md:text-3xl font-bold text-green-600" }, title)
+          ),
+          React.createElement('div', { className: "w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" },
+            items.map((item, index) => (
+              React.createElement('button', { 
+                onClick: () => onItemClick(item.description), 
+                key: index, 
+                className: "flex items-center justify-between text-left p-4 bg-white border border-gray-200 rounded-xl shadow-md hover:shadow-xl hover:bg-green-50 transition-all duration-300 cursor-pointer group" 
+              },
+                React.createElement('span', { className: "font-semibold text-gray-700 text-right" }, item.name),
+                React.createElement('div', { className: "text-green-500 transform transition-transform duration-300 group-hover:-translate-x-1" },
+                  React.createElement(ArrowLeftIcon)
+                )
+              )
+            ))
+          )
+        )
+      );
+    };
+
+    // --- From components/Dashboard.tsx ---
+    const Dashboard = ({ onSelectView, onItemClick }) => {
+      return (
+        React.createElement('main', { className: "flex-grow flex flex-col items-center justify-center w-full animate-fade-in-up" },
+          React.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl" },
+            React.createElement('div', { onClick: () => onSelectView('trainees'), className: "flex flex-col items-center justify-center p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer" },
+              React.createElement(TraineesIcon),
+              React.createElement('h2', { className: "text-2xl font-bold text-gray-800" }, 'المتدربون')
+            ),
+            React.createElement('div', { onClick: () => onSelectView('trainers'), className: "flex flex-col items-center justify-center p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer" },
+              React.createElement(TrainersIcon),
+              React.createElement('h2', { className: "text-2xl font-bold text-gray-800" }, 'المدربون')
+            ),
+            React.createElement('div', { onClick: () => onSelectView('supervisors'), className: "flex flex-col items-center justify-center p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer" },
+              React.createElement(SupervisorsIcon),
+              React.createElement('h2', { className: "text-2xl font-bold text-gray-800" }, 'مشرفو الوحدات')
+            )
+          )
+        )
+      );
+    };
+
+    // --- From App.tsx ---
+    const App = () => {
+      const [academicId, setAcademicId] = useState('');
+      const [error, setError] = useState(null);
+      const [isSuccess, setIsSuccess] = useState(false);
+      const [isLoggedIn, setIsLoggedIn] = useState(false);
+      const [userName, setUserName] = useState('');
+      const [currentView, setCurrentView] = useState('dashboard');
+      const [isModalOpen, setIsModalOpen] = useState(false);
+      const [modalContent, setModalContent] = useState('');
+      const [currentScreen, setCurrentScreen] = useState('launch');
+      const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+
+      useEffect(() => {
+        if (isLoggedIn) {
+          const randomName = ARABIC_MALE_NAMES[Math.floor(Math.random() * ARABIC_MALE_NAMES.length)];
+          setUserName(randomName);
+        }
+      }, [isLoggedIn]);
+
+      const handleInputChange = (e) => {
+        const value = e.target.value;
+        if (/^\\d*$/.test(value) && value.length <= 9) {
+          setAcademicId(value);
+          if (error) setError(null);
+          if (isSuccess) setIsSuccess(false);
+        }
+      };
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        if (academicId.length !== 9) {
+          setError('الرقم التدريبي يجب أن يتكون من 9 أرقام بالضبط.');
+          setIsSuccess(false);
+        } else {
+          setError(null);
+          setIsSuccess(true);
+          setTimeout(() => {
+            setIsLoggedIn(true);
+            setCurrentView('dashboard');
+          }, 1500);
+        }
+      };
+
+      const handleLogout = () => {
+        setIsLoggedIn(false);
+        setCurrentView('dashboard');
+        setCurrentScreen('launch');
+        setAcademicId('');
+        setError(null);
+        setIsSuccess(false);
+      };
+
+      const handleMenuItemClick = (description) => {
+        setModalContent(description);
+        setIsModalOpen(true);
+      };
+
+      const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setModalContent('');
+      };
+
+      const handleOpenMapModal = () => setIsMapModalOpen(true);
+      const handleCloseMapModal = () => setIsMapModalOpen(false);
+
+      const renderLoggedInView = () => {
+        switch (currentView) {
+          case 'trainees':
+          case 'trainers':
+          case 'supervisors':
+            return React.createElement(MenuScreen, { menuKey: currentView, onItemClick: handleMenuItemClick });
+          case 'dashboard':
+          default:
+            return React.createElement(Dashboard, { onSelectView: (view) => setCurrentView(view), onItemClick: handleMenuItemClick });
+        }
+      };
+
+      const renderContent = () => {
+        if (isLoggedIn) {
+          return renderLoggedInView();
+        }
+        switch (currentScreen) {
+          case 'login':
+            return React.createElement(LoginScreen, {
+              academicId: academicId,
+              onIdChange: handleInputChange,
+              onSubmit: handleSubmit,
+              error: error,
+              isSuccess: isSuccess,
+            });
+          case 'launch':
+          default:
+            return React.createElement(LaunchScreen, { onNavigateToLogin: () => setCurrentScreen('login'), onOpenMap: handleOpenMapModal, onItemClick: handleMenuItemClick });
+        }
+      };
+
+      return (
+        React.createElement('div', { className: "relative min-h-screen bg-gray-50 text-gray-800 flex flex-col items-center justify-between selection:bg-green-500 selection:text-white p-4 md:p-8" },
+          React.createElement('div', { className: "absolute top-8 left-8 right-8 flex justify-center" },
+            React.createElement('img', { 
+              src: "https://github.com/sunosama-afk/EdaView/blob/main/%D8%A7%D9%84%D8%B4%D8%B9%D8%A7%D8%B1-removebg-preview%20(1).png?raw=true", 
+              alt: "شعار EDA VIEW", 
+              className: "h-24 md:h-32"
+            })
+          ),
+          React.createElement(Modal, { isOpen: isModalOpen, onClose: handleCloseModal, content: modalContent }),
+          React.createElement(MapModal, { isOpen: isMapModalOpen, onClose: handleCloseMapModal }),
+          isLoggedIn && (
+            React.createElement('header', { className: "w-full flex justify-between items-center mt-32 md:mt-40 mb-8 max-w-6xl z-10" },
+              React.createElement('div', { className: "flex items-center gap-2" },
+                React.createElement('button', { onClick: handleLogout, className: "bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 text-sm" }, 'تسجيل الخروج'),
+                currentView !== 'dashboard' && (
+                  React.createElement('button', { onClick: () => setCurrentView('dashboard'), className: "bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors duration-300 text-sm" }, 'العودة للرئيسية')
+                )
+              ),
+              React.createElement('div', { className: "text-lg font-semibold text-gray-700 bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm" }, `مرحباً, ${userName}`)
+            )
+          ),
+          React.createElement('div', { className: `w-full max-w-6xl flex-grow flex flex-col items-center justify-center ${!isLoggedIn ? 'mt-40 md:mt-48' : ''}` },
+            renderContent()
+          ),
+          React.createElement('footer', { className: "w-full max-w-6xl flex justify-center items-center p-4 text-gray-500 text-sm mt-8 z-10" },
+            React.createElement('span', null, 'جميع الحقوق محفوظة EDA VIEW 2025 ©')
+          )
+        )
+      );
+    };
+
+    // --- From index.tsx ---
+    const rootElement = document.getElementById('root');
+    if (!rootElement) {
+      throw new Error("Could not find root element to mount to");
+    }
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(React.createElement(React.StrictMode, null, React.createElement(App)));
+  </script>
 </body>
 </html>
