@@ -134,11 +134,6 @@
         <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     );
-    const UniformIcon = () => (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mb-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.658-.463 1.243-1.117 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.117 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-      </svg>
-    );
     const ArrowLeftIcon = () => (
       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -154,10 +149,15 @@
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
       </svg>
     );
+    const DisciplineIcon = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mb-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+      </svg>
+    );
 
     // --- Mock Content Data ---
     const MOCK_CONTENT = {
-      'عرض جدول المتدرب': { type: 'table', title: 'الجدول التدريبي للفصل الحالي', headers: ['المقرر', 'الشعبة', 'الأيام', 'الوقت', 'القاعة', 'المدرب'], rows: [['404بنى', '3121', 'أحد ثلاثاء خميس', '08:00 - 09:40', '211', 'أ. علي الغامدي'], ['213بنى', '3145', 'اثنين أربعاء', '10:00 - 11:40', '215', 'م. خالد الحربي'], ['101سلم', '3201', 'أحد ثلاثاء', '12:00 - 12:50', '201', 'د. سعد الأحمدي']] },
+      'عرض جدول المتدرب': { type: 'schedule-image', title: 'جدول الاختبارات النهائية', src: 'https://github.com/sunosama-afk/EdaView/blob/main/%D8%AC%D8%AF%D9%88%D9%84%20%D8%A7%D9%84%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA.png?raw=true', alt: 'صورة جدول الاختبارات النهائية' },
       'استعراض سجل الدرجات الحالي': { type: 'table', title: 'سجل الدرجات', headers: ['رمز المقرر', 'اسم المقرر', 'الدرجة', 'التقدير'], rows: [['401بنى', 'أساسيات بناء النظم', '95', 'أ+'], ['210بنى', 'هيكلة حاسبات', '88', 'ب+'], ['101سلم', 'ثقافة إسلامية', '92', 'أ']] },
       'الاستعلام عن الحضور والغياب': { type: 'table', title: 'سجل الحضور والغياب', headers: ['المقرر', 'الساعات المعتمدة', 'ساعات الغياب', 'النسبة', 'الحالة'], rows: [['404بنى', '3', '5', '8.3%', 'نشط'], ['213بنى', '3', '10', '16.6%', 'إنذار أول'], ['101سلم', '2', '0', '0%', 'نشط']] },
       'استعراض السجل التدريبي': { type: 'table', title: 'السجل التدريبي الكامل', headers: ['الفصل', 'المقرر', 'الدرجة', 'التقدير', 'ملاحظات'], rows: [['451', '401بنى', '95', 'أ+', ''], ['451', '210بنى', '88', 'ب+', ''], ['442', '111بنى', '91', 'أ', ''], ['442', '101ريض', '82', 'ب', '']] },
@@ -179,6 +179,12 @@
     };
     
     // --- Mock Content Components ---
+    const MockScheduleImage = ({ src, alt }) => (
+      <div className="flex justify-center">
+        <img src={src} alt={alt} className="max-w-full h-auto rounded-lg shadow-md" />
+      </div>
+    );
+
     const MockTable = ({ headers, rows }) => (
       <div className="overflow-x-auto">
         <table className="w-full text-sm text-right text-gray-500">
@@ -322,8 +328,8 @@
               <h2 className="text-2xl font-bold text-gray-800 group-hover:text-green-600 transition-colors">معلومات هامة</h2>
             </div>
             <div onClick={onNavigateToUniformInfo} className="flex flex-col items-center justify-center p-8 bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer group">
-              <UniformIcon />
-              <h2 className="text-2xl font-bold text-gray-800 group-hover:text-green-600 transition-colors">الزي الرسمي</h2>
+              <DisciplineIcon />
+              <h2 className="text-2xl font-bold text-gray-800 group-hover:text-green-600 transition-colors">تعليمات الانضباط والسلوك</h2>
             </div>
           </div>
         </main>
@@ -486,7 +492,7 @@
         <main className="flex-grow w-full flex flex-col items-center animate-fade-in-up">
           <div className="w-full max-w-4xl bg-white border border-gray-200 rounded-2xl p-8 shadow-lg">
             <div className="flex justify-between items-center mb-6 border-b pb-4">
-              <h1 className="text-2xl md:text-3xl font-bold text-green-600">الزي الرسمي للمتدربين</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-green-600">تعليمات الانضباط والسلوك</h1>
               <button
                 onClick={onBack}
                 className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors duration-300 text-sm flex items-center"
@@ -595,6 +601,9 @@
 
         let contentComponent;
         switch(mock.type) {
+            case 'schedule-image':
+                contentComponent = <MockScheduleImage src={mock.src} alt={mock.alt} />;
+                break;
             case 'table':
                 contentComponent = <MockTable headers={mock.headers} rows={mock.rows} />;
                 break;
